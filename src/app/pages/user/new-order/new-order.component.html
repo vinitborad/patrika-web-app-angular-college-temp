@@ -1,0 +1,194 @@
+<div class="flex flex-col min-h-screen">
+  <!-- Top Bar -->
+  <app-top-bar></app-top-bar>
+
+  <!-- Rest of your content -->
+  <div class="container mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold">Create New Order</h1>
+      <p class="text-gray-600 mt-1">Upload your PDFs and customize your printing options</p>
+    </header>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Main content -->
+      <div class="w-full lg:w-2/3 space-y-6">
+        <!-- PDF Upload Section -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold mb-4">Upload PDFs</h2>
+
+          <!-- Upload Button -->
+          <div class="mb-6">
+            <label for="file-upload"
+              class="cursor-pointer flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition">
+              <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                  class="mx-auto mb-2 text-gray-400">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" x2="12" y1="3" y2="15"></line>
+                </svg>
+                <p class="text-lg font-medium">Click to upload PDF files</p>
+                <p class="text-gray-500 text-sm mt-1">or drag and drop files here</p>
+              </div>
+            </label>
+            <input id="file-upload" type="file" accept="application/pdf" multiple class="hidden"
+              (change)="onFileSelected($event)" />
+          </div>
+
+          <!-- PDF List -->
+          <div *ngIf="pdfFiles.length > 0" class="space-y-4 border-t pt-4">
+            <h3 class="font-medium">Uploaded Files ({{ pdfFiles.length }})</h3>
+
+            <div *ngFor="let file of pdfFiles" class="flex items-center justify-between border rounded-lg p-4">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="text-rose-500 mr-3">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <path d="M14 2v6h6"></path>
+                  <path d="M16 13H8"></path>
+                  <path d="M16 17H8"></path>
+                  <path d="M10 9H9"></path>
+                </svg>
+                <div>
+                  <h4 class="font-medium truncate max-w-xs">{{ file.name }}</h4>
+                  <div class="text-sm text-gray-500 flex space-x-4">
+                    <span>{{ formatFileSize(file.size) }}</span>
+                    <span>{{ file.pages }} pages</span>
+                  </div>
+                </div>
+              </div>
+              <button class="text-red-600 hover:text-red-800" (click)="removePdf(file.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="pdfFiles.length === 0" class="text-center text-gray-500 my-8">
+            <p>No PDF files uploaded yet</p>
+          </div>
+        </div>
+
+        <!-- Print Options -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Print Options</h2>
+            <button class="text-rose-600 hover:text-rose-800 text-sm font-medium" (click)="toggleAdvanceOptions()">
+              {{ isAdvanceOptionsOpen ? 'Hide' : 'Show' }} Advanced Options
+            </button>
+          </div>
+
+          <!-- Basic Options -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Number of Copies</label>
+              <input type="number" min="1"
+                class="w-full border-gray-300 rounded-md shadow-sm focus:border-rose-500 focus:ring-rose-500"
+                [(ngModel)]="printOptions.copies" (change)="updateOptions()" />
+            </div>
+            <div class="flex items-center">
+              <div class="flex items-center mr-6">
+                <input type="checkbox" id="color-option" class="rounded text-rose-600 focus:ring-rose-500 h-4 w-4"
+                  [(ngModel)]="printOptions.color" (change)="updateOptions()" />
+                <label for="color-option" class="ml-2 block text-sm text-gray-700">Color</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="double-sided" class="rounded text-rose-600 focus:ring-rose-500 h-4 w-4"
+                  [(ngModel)]="printOptions.doubleSided" (change)="updateOptions()" />
+                <label for="double-sided" class="ml-2 block text-sm text-gray-700">Double-sided</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Options (Collapsible) -->
+          <div *ngIf="isAdvanceOptionsOpen" class="border-t pt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Page Range (e.g. 1-5,8,11-13)</label>
+                <input type="text"
+                  class="w-full border-gray-300 rounded-md shadow-sm focus:border-rose-500 focus:ring-rose-500"
+                  [(ngModel)]="printOptions.pageRange" (change)="updateOptions()" />
+                <p class="mt-1 text-sm text-gray-500">Leave empty to print all pages</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary Sidebar -->
+      <div class="w-full lg:w-1/3">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+          <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+
+          <div class="space-y-4">
+            <!-- Order Items -->
+            <div *ngIf="pdfFiles.length > 0" class="space-y-2">
+              <div *ngFor="let file of pdfFiles" class="flex justify-between text-sm">
+                <span class="text-gray-600 truncate max-w-[200px]">{{ file.name }}</span>
+                <span class="font-medium">₹{{ (file.pages || 0) * (printOptions.color ? 6 : 3) * printOptions.copies
+                  }}</span>
+              </div>
+            </div>
+
+            <!-- Empty Message -->
+            <div *ngIf="pdfFiles.length === 0" class="text-gray-500 text-center py-4">
+              <p>Add PDF files to see your order summary</p>
+            </div>
+
+            <!-- Order Options -->
+            <div *ngIf="pdfFiles.length > 0" class="text-sm space-y-1 border-t pt-4">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Copies:</span>
+                <span>{{ printOptions.copies }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Color:</span>
+                <span>{{ printOptions.color ? 'Yes' : 'No' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Double-sided:</span>
+                <span>{{ printOptions.doubleSided ? 'Yes' : 'No' }}</span>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="border-t pt-4 flex justify-between items-center">
+              <span class="text-lg font-bold">Total:</span>
+              <span class="text-xl font-bold text-rose-600">₹{{ totalCost }}</span>
+            </div>
+
+            <!-- Pay Button -->
+            <button
+              class="w-full bg-rose-600 text-white rounded-md py-3 font-medium hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+              [disabled]="pdfFiles.length === 0 || isPaying" (click)="initiatePayment()">
+              <span *ngIf="!isPaying">Pay & Print</span>
+              <span *ngIf="isPaying" class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Processing...
+              </span>
+            </button>
+
+            <!-- Info -->
+            <p class="text-sm text-gray-500 text-center mt-4">
+              After payment, you'll receive an OTP to collect your prints
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

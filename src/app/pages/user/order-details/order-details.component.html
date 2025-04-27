@@ -1,0 +1,147 @@
+<div class="flex flex-col min-h-screen">
+  <!-- Top Bar -->
+  <app-top-bar></app-top-bar>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Loading State -->
+    <app-loading-indicator *ngIf="isLoading" message="Loading order details..." size="lg"></app-loading-indicator>
+
+    <!-- Order Details -->
+    <div *ngIf="!isLoading && orderDetails">
+      <!-- Header -->
+      <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div>
+          <h1 class="text-3xl font-bold">Order #{{ orderDetails.id.substring(0, 8) }}</h1>
+          <p class="text-gray-600 mt-1">
+            Created on {{ orderDetails.createdAt | date:'medium' }}
+          </p>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="mt-4 md:mt-0">
+          <span [ngClass]="{
+            'bg-amber-100 text-amber-800': orderDetails.status === 'Pending',
+            'bg-blue-100 text-blue-800': orderDetails.status === 'Printing',
+            'bg-green-100 text-green-800': orderDetails.status === 'Completed',
+            'bg-red-100 text-red-800': orderDetails.status === 'Cancelled'
+          }" class="px-3 py-1 rounded-full text-sm font-medium">
+            {{ orderDetails.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+          <!-- Files List -->
+          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Files ({{ orderDetails.files.length }})</h2>
+            <div class="space-y-4">
+              <div *ngFor="let file of orderDetails.files" class="border rounded-lg p-4">
+                <div class="flex items-start">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-rose-500 mr-3 flex-shrink-0">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <path d="M14 2v6h6"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                    <path d="M10 9H9"></path>
+                  </svg>
+                  <div class="flex-grow">
+                    <h4 class="font-medium">{{ file.name }}</h4>
+                    <div class="text-sm text-gray-600 mt-1">
+                      <div class="flex flex-wrap gap-x-4 gap-y-1">
+                        <span>{{ file.pages }} pages</span>
+                        <span>{{ file.color ? 'Color' : 'Black & White' }}</span>
+                        <span>{{ file.doubleSided ? 'Double-sided' : 'Single-sided' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Print Instructions -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">Print Instructions</h2>
+
+            <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+              <h3 class="font-bold text-blue-800">How to collect your prints:</h3>
+              <ol class="pl-5 mt-2 space-y-2 list-decimal">
+                <li>Visit any of our printing locations during operating hours</li>
+                <li>Enter your order ID and OTP at the kiosk</li>
+                <li>Collect your prints from the printer tray</li>
+              </ol>
+            </div>
+
+            <div *ngIf="orderDetails.status === 'Pending'" class="mt-6">
+              <button class="text-red-600 hover:text-red-800 font-medium" (click)="cancelOrder()">
+                Cancel Order
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <!-- Order Summary -->
+          <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+            <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+
+            <!-- OTP -->
+            <div *ngIf="orderDetails.otp" class="bg-gray-100 p-4 rounded-lg mb-6 text-center">
+              <p class="text-sm text-gray-600 mb-1">Your OTP</p>
+              <p class="text-2xl font-bold tracking-wider">{{ orderDetails.otp }}</p>
+              <p class="text-sm text-gray-600 mt-1">Keep this code safe</p>
+            </div>
+
+            <!-- Order Info -->
+            <div class="space-y-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Total Pages</span>
+                <span class="font-medium">{{ orderDetails.totalPages }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Status</span>
+                <span class="font-medium">{{ orderDetails.status }}</span>
+              </div>
+              <div class="pt-4 border-t flex justify-between items-center">
+                <span class="text-lg font-bold">Total</span>
+                <span class="text-xl font-bold text-rose-600">₹{{ orderDetails.totalCost }}</span>
+              </div>
+            </div>
+
+            <!-- Back to Dashboard -->
+            <div class="mt-6">
+              <a [routerLink]="['/home']"
+                class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded transition-colors">
+                Back to Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && !orderDetails" class="text-center py-12">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+        class="mx-auto text-gray-400 mb-4">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <h2 class="text-xl font-bold">Order Not Found</h2>
+      <p class="text-gray-600 mt-2">We couldn't find the order you're looking for.</p>
+      <div class="mt-6">
+        <a [routerLink]="['/home']" class="text-rose-600 hover:text-rose-800 font-medium">
+          Return to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

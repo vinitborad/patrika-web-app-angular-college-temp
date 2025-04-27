@@ -1,0 +1,25 @@
+<section class="bg-gradient-to-r from-rose-100 to-teal-100 py-16 md:py-24">
+  <div class="container px-4 md:px-6 mx-auto flex flex-col items-center text-center gap-6">
+    <div class="relative w-40 h-40 mb-4">
+      <img src="/assets/patrika-app-icon-without-bg.png" alt="Patrika Printers Logo"
+        class="object-contain w-full h-full" />
+    </div>
+    <h1 class="text-4xl md:text-6xl font-bold tracking-tighter">Patrika Printers</h1>
+    <p class="text-xl md:text-2xl text-gray-600 max-w-[700px]">
+      Print on demand, anywhere in the city. Upload, pay, and collect your prints from our convenient locations. Bulk
+      delivery also available.
+    </p>
+    <a [routerLink]="['/home']" class="inline-flex">
+      <button
+        class="mt-4 text-lg h-12 px-8 flex items-center gap-2 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 bg-rose-600 text-white hover:bg-rose-700">
+        Create Order Now
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+      </button>
+    </a>
+  </div>
+</section>
